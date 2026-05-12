@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Registrasi</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Form Registrasi</h2>
+
+    <form id="formRegistrasi">
+
+        <div class="form-group">
+            <label>NIK</label>
+            <input type="text" id="nik" placeholder="Masukkan NIK">
+        </div>
+
+        <div class="form-group">
+            <label>Nama</label>
+            <input type="text" id="nama" placeholder="Masukkan nama lengkap">
+        </div>
+
+        <div class="form-group">
+            <label>Jenis Kelamin</label>
+
+            <div class="radio">
+                <label>
+                    <input type="radio" name="jk" value="Laki-laki">
+                    Laki-laki
+                </label>
+
+                <label>
+                    <input type="radio" name="jk" value="Perempuan">
+                    Perempuan
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Alamat</label>
+            <textarea id="alamat" placeholder="Masukkan alamat"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Tanggal Lahir</label>
+            <input type="date" id="tgl">
+        </div>
+
+        <div class="form-group">
+            <label>Agama</label>
+
+            <select id="agama">
+                <option>-- Pilih Agama --</option>
+                <option>Islam</option>
+                <option>Kristen</option>
+                <option>Katolik</option>
+                <option>Hindu</option>
+                <option>Buddha</option>
+                <option>Konghucu</option>
+            </select>
+        </div>
+
+        <button type="submit">
+            Simpan
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+
+const form = document.getElementById("formRegistrasi");
+
+form.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    let nik = document.getElementById("nik").value;
+    let nama = document.getElementById("nama").value;
+    let alamat = document.getElementById("alamat").value;
+    let tgl = document.getElementById("tgl").value;
+    let agama = document.getElementById("agama").value;
+
+    let jk = document.querySelector('input[name="jk"]:checked');
+
+    let jenisKelamin = jk ? jk.value : "-";
+
+    alert(
+        "Data Berhasil Disimpan!\n\n" +
+        "NIK : " + nik + "\n" +
+        "Nama : " + nama + "\n" +
+        "Jenis Kelamin : " + jenisKelamin + "\n" +
+        "Alamat : " + alamat + "\n" +
+        "Tanggal Lahir : " + tgl + "\n" +
+        "Agama : " + agama
+    );
+
+});
+
+
+// khusus NIK hanya angka
+document.getElementById("nik").addEventListener("input", function(){
+
+    this.value = this.value.replace(/[^0-9]/g, '');
+
+});
+
+</script>
+
+</body>
+</html>
