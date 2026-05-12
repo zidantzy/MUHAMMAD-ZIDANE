@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini Web App Modern 🚀</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            margin: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1;}
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            background-color: #f9f9f9;
+        }
+
+        input {
+            padding: 10px;
+            width: 60%;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #6c63ff;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #5548d9;
+        }
+
+        button:active {
+            transform: scale(0.9);
+        }
+
+        ul {
+            padding: 0;
+        }
+
+        li {
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eee;
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        li:active {
+            transform: scale(0.97);
+        }
+
+        .item-text {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .hapus-btn {
+            background: red;
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .hapus-btn:active {
+            transform: scale(0.85);
+        }
+
+        #loading {
+            font-weight: bold;
+            color: blue;
+        }
+
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Mini Web App 🚀</h1>
+
+    <!-- NAMA -->
+    <div class="section">
+        <h2>Masukkan Nama</h2>
+        <input type="text" id="namaInput">
+        <button onclick="tampilkanNama()">Tampilkan</button>
+        <p id="hasilNama"></p>
+    </div>
+
+    <!-- HOBI -->
+    <div class="section">
+        <h2>Daftar Hobi</h2>
+        <input type="text" id="hobiInput">
+        <button onclick="tambahHobi()">Tambah</button>
+        <button onclick="hapusSemua()">Hapus Semua</button>
+
+        <ul id="listHobi"></ul>
+    </div>
+
+    <!-- API -->
+    <div class="section">
+        <h2>Data User</h2>
+        <input type="text" id="searchInput" placeholder="Cari user...">
+
+        <p id="loading">Loading...</p>
+        <p id="error"></p>
+
+        <ul id="dataUser"></ul>
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   NAMA
+========================= */
+const tampilkanNama = () => {
+    let nama = document.getElementById("namaInput").value;
+
+    if (nama === "") return alert("Isi dulu!");
+
+    document.getElementById("hasilNama").innerHTML = `Halo <b>${nama}</b> 👋`;
+};
+
+
+/* =========================
+   HOBI (LOCAL STORAGE)
+========================= */
+let daftarHobi = JSON.parse(localStorage.getItem("hobi")) || [];
+
+const tambahHobi = () => {
+    let input = document.getElementById("hobiInput");
+    let hobi = input.value;
+
+    if (hobi === "") return alert("Tidak boleh kosong!");
+
+    daftarHobi.push({ text: hobi, done: false });
+
+    localStorage.setItem("hobi", JSON.stringify(daftarHobi));
+
+    renderHobi();
+    input.value = "";
+};
+
+const renderHobi = () => {
+    let list = document.getElementById("listHobi");
+    list.innerHTML = "";
+
+    daftarHobi.forEach((item, index) => {
+        let li = document.createElement("li");
+
+        let span = document.createElement("span");
+        span.textContent = item.text;
+        span.className = "item-text";
+
+        if (item.done) span.classList.add("done");
+
+        // klik = selesai
+        span.onclick = () => {
+            daftarHobi[index].done = !daftarHobi[index].done;
+            localStorage.setItem("hobi", JSON.stringify(daftarHobi));
+            renderHobi();
+        };
+
+        // double klik = edit
+        span.ondblclick = () => {
+            let baru = prompt("Edit hobi:", item.text);
+            if (baru) {
+                daftarHobi[index].text = baru;
+                localStorage.setItem("hobi", JSON.stringify(daftarHobi));
+                renderHobi();
+            }
+        };
+
+        // tombol hapus
+        let btn = document.createElement("button");
+        btn.textContent = "Hapus";
+        btn.className = "hapus-btn";
+
+        btn.onclick = () => {
+            daftarHobi.splice(index, 1);
+            localStorage.setItem("hobi", JSON.stringify(daftarHobi));
+            renderHobi();
+        };
+
+        li.appendChild(span);
+        li.appendChild(btn);
+
+        list.appendChild(li);
+    });
+};
+
+const hapusSemua = () => {
+    localStorage.removeItem("hobi");
+    daftarHobi = [];
+    renderHobi();
+};
+
+
+/* =========================
+   API + SEARCH
+========================= */
+let semuaUser = [];
+
+const ambilData = async () => {
+    let loading = document.getElementById("loading");
+    let errorText = document.getElementById("error");
+    let list = document.getElementById("dataUser");
+
+    loading.style.display = "block";
+    errorText.innerHTML = "";
+    list.innerHTML = "";
+
+    try {
+        let response = await fetch("https://dummyjson.com/users");
+
+        if (!response.ok) throw new Error("Gagal ambil data!");
+
+        let data = await response.json();
+
+        loading.style.display = "none";
+
+        semuaUser = data.users;
+
+        renderUser(semuaUser);
+
+    } catch (error) {
+        loading.style.display = "none";
+        errorText.innerHTML = "❌ " + error.message;
+    }
+};
+
+const renderUser = (users) => {
+    let list = document.getElementById("dataUser");
+    list.innerHTML = "";
+
+    if (users.length === 0) {
+        list.innerHTML = "<p>Tidak ditemukan</p>";
+        return;
+    }
+
+    users.forEach(user => {
+        let li = document.createElement("li");
+        li.textContent = `${user.firstName} ${user.lastName}`;
+        list.appendChild(li);
+    });
+};
+
+const cariUser = () => {
+    let keyword = document.getElementById("searchInput").value.toLowerCase();
+
+    let hasil = semuaUser.filter(user => {
+        let nama = `${user.firstName} ${user.lastName}`.toLowerCase();
+        return nama.includes(keyword);
+    });
+
+    renderUser(hasil);
+};
+
+document.getElementById("searchInput")
+    .addEventListener("keyup", cariUser);
+
+
+/* INIT */
+ambilData();
+renderHobi();
+
+</script>
+
+</body>
+</html>
